@@ -74,7 +74,7 @@ def main():
         if data:
             new_df = pl.DataFrame(data).unnest("track")
             current_df = pl.read_parquet("data/raw/saved_tracks.parquet")
-            (pl.concat(current_df, new_df)).write_parquet(
+            (pl.concat([current_df, new_df], how="diagonal_relaxed")).write_parquet(
                 "data/raw/saved_tracks.parquet"
             )
         else:
