@@ -8,7 +8,7 @@ SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
 SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
 
-scope = "playlist-read-private playlist-read-collaborative user-library-read user-top-read"
+scope = "playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played"
 
 sp = spotipy.Spotify(
     auth_manager=spotipy.SpotifyOAuth(
