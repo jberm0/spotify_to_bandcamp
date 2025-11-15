@@ -31,26 +31,6 @@ sp_oauth = SpotifyOAuth(
     scope=SCOPE,
 )
 
-# def authorise():
-#     if st.session_state["sp"] is None:
-#         if "code" in st.query_params:
-#             # The user has authorized the app
-#             code = st.query_params["code"][0]
-#             st.session_state["code"] = code
-#             token_info = sp_oauth.get_access_token(code)
-#             sp = spotipy.Spotify(
-#                 auth=token_info["access_token"]
-#             )
-#             st.session_state["sp"] = sp
-#             st.success("Successfully signed in to Spotify")
-#         else:
-#             # Display the authorization URL to the user
-#             auth_url = sp_oauth.get_authorize_url()
-#             st.markdown(f"[Click here to authenticate with your Spotify account]({auth_url})")
-#     else:
-#         st.success("You are already signed in!")
-
-
 def authorise():
     # Check if the 'sp' key is in session state (this means the user has already authenticated)
     if "sp" not in st.session_state or st.session_state["sp"] is None:
