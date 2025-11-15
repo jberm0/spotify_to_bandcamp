@@ -25,8 +25,12 @@ def find_bandcamp_url_optimized(artist="", album="", track=""):
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/58.0.3029.110 Safari/537.36"
-            )
+                "Chrome/91.0.4472.124 Safari/537.36"
+            ),
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
         }
         r = requests.get(search_url, timeout=10, headers=headers)
         st.write(f"Status Code: {r.status_code}")
