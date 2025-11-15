@@ -4,7 +4,7 @@ import os
 
 from saved_albums import main as albums_main
 from saved_tracks import main as tracks_main
-from tops import top_artists, top_tracks
+from tops import top_artists, top_tracks, top_albums
 from recents import process_raw_recents
 
 
@@ -39,7 +39,15 @@ with top_lists:
 
     st.title(f"Top Lists")
 
-    category = st.pills("Category", options=["artists", "tracks"], selection_mode="single")
+    category = st.pills(
+        "Category",
+        options=[
+            "tracks",
+            "albums",
+            "artists"
+        ],
+        selection_mode="single",
+    )
     term = st.pills(
         "Term",
         options=["short_term", "medium_term", "long_term"],
@@ -51,6 +59,8 @@ with top_lists:
             df = top_artists(term)
         case "tracks":
             df = top_tracks(term)
+        case "albums":
+            df = top_albums(term)
         case _:
             df = None
 

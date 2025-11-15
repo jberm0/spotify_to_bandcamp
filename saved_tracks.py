@@ -55,40 +55,16 @@ def process_raw_tracks(df):
             pl.col("name").alias("artist_name"),
         )
         .group_by(
-            "added_at",
-            "track_id",
             "track_name",
             "album_name",
+            "added_at",
             "release_date",
             maintain_order=True,
         )
-        .agg("artist_name", "artist_id")
+        .agg("artist_name")
     )
     return df
 
-
-# def main():
-#     if os.path.exists("data/raw/saved_tracks.parquet"):
-#         offset = pl.read_parquet("data/raw/saved_tracks.parquet").height
-#         print(f"offset: {offset}")
-#         data = get_saved_tracks_raw(sp, offset)
-#         if data:
-#             new_df = pl.DataFrame(data).unnest("track")
-#             current_df = pl.read_parquet("data/raw/saved_tracks.parquet")
-#             (pl.concat([current_df, new_df], how="diagonal_relaxed")).write_parquet(
-#                 "data/raw/saved_tracks.parquet"
-#             )
-#         else:
-#             print("no new data to ingest")
-#     else:
-#         offset = 0
-#         data = get_saved_tracks_raw(sp, offset)
-#         df = pl.DataFrame(data).unnest("track")
-#         df.write_parquet("data/raw/saved_tracks.parquet")
-
-#     clean_df = process_raw_tracks()
-#     clean_df.write_parquet("data/cleaned/saved_tracks.parquet")
-#     print("cleaned saved tracks")
 
 @st.cache_data()
 def main():

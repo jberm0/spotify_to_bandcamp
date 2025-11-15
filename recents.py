@@ -48,8 +48,8 @@ def process_raw_recents():
         .agg("name")
         .select(
             "track_name",
-            "album",
-            pl.col("name").alias("artist"),
+            pl.col("album").alias("album_name"),
+            pl.col("name").alias("artist_name"),
             pl.max("played_at")
             .over("track_name", "album", "name")
             .alias("last_played"),
