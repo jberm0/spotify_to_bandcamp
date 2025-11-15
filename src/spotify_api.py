@@ -78,7 +78,15 @@ sp_oauth = SpotifyOAuth(
 #     return True
 
 
+def clear_session_on_new_visit():
+    """Forcefully clear session data on new visits to ensure re-authentication."""
+    if "sp" in st.session_state:
+        del st.session_state["sp"]
+        st.session_state["sp"] = None  # Make sure 'sp' key is reset
+
+
 def authorise():
+    clear_session_on_new_visit()
     # Each user has their own session, check if "sp" is in the session state for that user
     if "sp" not in st.session_state or st.session_state["sp"] is None:
         # Check if we have a code in the query params
