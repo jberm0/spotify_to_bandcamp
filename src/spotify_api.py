@@ -174,7 +174,7 @@ def authorise():
 
     # --- handle callback ---
     params = st.query_params
-    code = params.get("code")
+    code = params["code"] if "code" in params else None
 
     if isinstance(code, list):  # Streamlit sometimes returns a list
         code = code[0]
