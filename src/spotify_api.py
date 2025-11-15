@@ -8,14 +8,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Spotify API credentials (you can store them in .env or Streamlit Secrets)
-SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
-SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
-
-# SPOTIPY_CLIENT_ID = st.secret("SPOTIPY_CLIENT_ID")
-# SPOTIPY_CLIENT_SECRET = st.secret("SPOTIPY_CLIENT_SECRET")
-# SPOTIPY_REDIRECT_URI = st.secret("SPOTIPY_REDIRECT_URI")
+try:
+    SPOTIPY_REDIRECT_URI = st.secrets["SPOTIPY_REDIRECT_URI"]
+    SPOTIPY_CLIENT_ID = st.secrets["SPOTIPY_CLIENT_ID"]
+    SPOTIPY_CLIENT_SECRET = st.secrets["SPOTIPY_CLIENT_SECRET"]
+except:
+    SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
+    SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
+    SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
 
 # http://127.0.0.1:8501/callback
 
@@ -76,4 +76,3 @@ def check_authorisation(custom_message=None):
             st.markdown(f"[Click here to authenticate with your Spotify account]({auth_url})")
         return False
     return True
-
