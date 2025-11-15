@@ -1,12 +1,13 @@
-from src.spotify_api import sp
+# from src.spotify_api import sp
 import polars as pl
 import streamlit as st
 
 
-def get_top_tracks(sp, time_range: str):
+def get_top_tracks(time_range: str):
     limit = 100
     next = 0
     data = []
+    sp = st.session_state.get("sp")
     while next < limit:
         res = sp.current_user_top_tracks(limit=50, offset=next, time_range=time_range)
         data.extend(res.get("items"))
@@ -15,10 +16,11 @@ def get_top_tracks(sp, time_range: str):
     return data
 
 
-def get_top_artists(sp, time_range: str):
+def get_top_artists(time_range: str):
     limit = 100
     next = 0
     data = []
+    sp = st.session_state.get("sp")
     while next < limit:
         res = sp.current_user_top_artists(limit=50, offset=next, time_range=time_range)
         data.extend(res.get("items"))
@@ -53,14 +55,16 @@ def process_df(df):
 
 @st.cache_data()
 def top_tracks(term):
-    tracks = get_top_tracks(sp, term)
+    sp = st.session_state.get("sp")
+    tracks = get_top_tracks(term)
     df = pl.DataFrame(tracks).select("album", "artists", "name")
     return process_df(df)
 
 
 @st.cache_data()
 def top_artists(term):
-    artists = get_top_artists(sp, term)
+    sp = st.session_state.get("sp")
+    artists = get_top_artists(term)
     return (
         pl.DataFrame(artists)
         .select(pl.col("name").alias("artist_name"))
@@ -68,6 +72,7 @@ def top_artists(term):
 
 @st.cache_data()
 def top_albums(term):
+    sp = st.session_state.get("sp")
     top_tracks_df = top_tracks(term)
     return (
         top_tracks_df.group_by("album_name", "artist_name")

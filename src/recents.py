@@ -1,4 +1,4 @@
-from src.spotify_api import sp
+# from src.spotify_api import sp
 import pprint
 import polars as pl
 import os
@@ -22,6 +22,7 @@ def now_unix():
 
 
 def get_recent_tracks():
+    sp = st.session_state.get("sp")
     ts = one_month_ago_unix()
     recents = sp.current_user_recently_played(limit=50, after=ts)
     return recents
