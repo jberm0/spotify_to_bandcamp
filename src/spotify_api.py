@@ -170,40 +170,23 @@ def get_oauth():
 
 
 def authorise():
-    oauth = get_oauth()
-
-    # --- handle callback ---
-    params = st.query_params
-    code = params["code"] if "code" in params else None
-
-    if isinstance(code, list):  # Streamlit sometimes returns a list
-        code = code[0]
-
-    if code:
-        st.write("Received callback from Spotify!")
-        try:
-            token_info = oauth.get_access_token(code, check_cache=False)
-
-            st.session_state["token_info"] = token_info
+    if "sp" not in st.session_state or st.session_state["sp"] is None:
+        # Check for OAuth callback
+        params = st.experimental_get_query_params()
+        code = params.get("code")
+        if code:
+            code = code[0]  # Streamlit returns list
+            token_info = sp_oauth.get_access_token(code, check_cache=False)
             st.session_state["sp"] = spotipy.Spotify(auth=token_info["access_token"])
-
-            # Clear params from URL
-            st.query_params.clear()
-            st.rerun()
-
-        except Exception as e:
-            st.error(f"Spotify auth error: {e}")
-            st.markdown(f"[Retry login]({oauth.get_authorize_url()})")
-            return
-
-    # --- no callback? Show login link ---
-    if "token_info" not in st.session_state:
-        auth_url = oauth.get_authorize_url()
-        st.write("Click below to log in to Spotify:")
-        st.markdown(f"[Authenticate with Spotify]({auth_url})")
-        return
-
-    st.success("Authenticated!")
+            # Clear query params and rerun to prevent reprocessing the code
+            st.experimental_set_query_params()
+            st.experimental_rerun()
+        else:
+            # Not authenticated yet → show login link
+            auth_url = sp_oauth.get_authorize_url()
+            st.markdown(f"[Click here to authenticate with Spotify]({auth_url})")
+            return False
+    return True
 
 
 def get_spotify_client():
