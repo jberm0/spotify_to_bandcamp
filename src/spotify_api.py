@@ -58,6 +58,7 @@ def authorise():
         code = st.query_params.get("code")
 
         if code:
+            st.write(f"Received code: {code[0]}")
             try:
                 # Exchange the code for an access token
                 token_info = sp_oauth.get_access_token(
