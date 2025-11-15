@@ -76,6 +76,7 @@ def authorise():
 
             except Exception as e:
                 st.error(f"Error during authorization: {str(e)}")
+                st.markdown("[Click here to reauthorize with Spotify](%s)" % sp_oauth.get_authorize_url())
         else:
             # No code, so show the authorization URL
             auth_url = sp_oauth.get_authorize_url()
