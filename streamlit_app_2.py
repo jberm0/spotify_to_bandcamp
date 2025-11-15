@@ -85,13 +85,13 @@ def apply_filters(df: pl.DataFrame):
 
     return df
 
-top_lists, recents, albums, tracks = st.tabs(
-    ["top_lists", "recents", "albums", "tracks"]
+top_lists, recents = st.tabs(
+    ["Top Lists", "Recent Tracks"]
 )
 
 with top_lists:
 
-    st.title("Top Lists")
+    st.title("Top Tracks, Albums and Artists")
 
     category = st.pills(
         "Category",
@@ -110,16 +110,20 @@ with top_lists:
         case "tracks":
             df = top_tracks(term)
         case "albums":
+            st.badge(
+                "Note that top albums are aggregated from top tracks",
+                color="grey",
+            )
             df = top_albums(term)
         case _:
             df = None
 
-    st.write(apply_filters(df))
+    filtered_df = apply_filters(df)
 
-    if st.button("Search Bandcamp"):
-        if apply_filters(df) is not None and not apply_filters(df).is_empty():
+    if st.button("Search Bandcamp", key="search_bandcamp_tops"):
+        if filtered_df is not None and not filtered_df.is_empty():
             # Compute Bandcamp URLs
-            df_with_urls = compute_bandcamp_urls(apply_filters(df))
+            df_with_urls = compute_bandcamp_urls(filtered_df)
             st.success("Bandcamp URLs fetched!")
             st.dataframe(
                 df_with_urls,
@@ -131,27 +135,31 @@ with top_lists:
             )
         else:
             st.warning("No data to search.")
+    else:
+        st.write(filtered_df)
+
 
 with recents:
 
-    st.title("Recent Plays")
+    st.title("Last 50 Tracked Played")
     df = process_raw_recents()
-    st.write(apply_filters(df))
 
-# with albums:
+    filtered_df = apply_filters(df)
 
-#     st.title("Albums")
-#     df = albums_main()
-
-#     st.write(f"{df.height} albums pre-filter")
-#     df = apply_filters(df)
-#     st.write(df)
-
-# with tracks:
-
-#     st.title("Tracks")
-#     df = tracks_main()
-
-#     st.write(f"{df.height} tracks pre-filter")
-#     df = apply_filters(df)
-#     st.write(df)
+    if st.button("Search Bandcamp", key="search_bandcamp_recents"):
+        if filtered_df is not None and not filtered_df.is_empty():
+            # Compute Bandcamp URLs
+            df_with_urls = compute_bandcamp_urls(filtered_df)
+            st.success("Bandcamp URLs fetched!")
+            st.dataframe(
+                df_with_urls,
+                column_config={
+                    "bandcamp_url": st.column_config.LinkColumn(
+                        help="Note the bandcamp link may not always be accurate",
+                    )
+                },
+            )
+        else:
+            st.warning("No data to search.")
+    else:
+        st.write(filtered_df)

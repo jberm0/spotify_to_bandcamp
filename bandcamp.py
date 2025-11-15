@@ -59,14 +59,6 @@ def compute_bandcamp_urls(df: pl.DataFrame) -> pl.DataFrame:
         else [""] * len(artists)
     )
 
-    # Determine level based on available columns
-    if "track_name" in df.columns and "album_name" in df.columns:
-        level = "track"
-    elif "album_name" in df.columns:
-        level = "album"
-    else:
-        level = "artist"
-
     # Compute URLs
     urls = [
         find_bandcamp_url_optimized(a, b, t)
@@ -81,4 +73,10 @@ def compute_bandcamp_urls(df: pl.DataFrame) -> pl.DataFrame:
         data["track_name"] = tracks
     data["bandcamp_url"] = urls
 
-    return pl.DataFrame(data)
+    join_cols = ["artist_name"]
+    if "album_name" in df.columns:
+        join_cols.append("album_name")
+    if "track_name" in df.columns:
+        join_cols.append("track_name")
+
+    return df.join(pl.DataFrame(data), on=join_cols, how="left")

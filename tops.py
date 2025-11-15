@@ -73,7 +73,6 @@ def top_albums(term):
         top_tracks_df.group_by("album_name", "artist_name")
         .agg(
             pl.count("track_name").alias("track_count"),
-            pl.col("track_name").unique().alias("track_names"),
         )
         .filter(pl.col("track_count") > 3)
     )
