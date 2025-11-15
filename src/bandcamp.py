@@ -28,6 +28,9 @@ def find_bandcamp_url_optimized(artist="", album="", track=""):
             )
         }
         r = requests.get(search_url, timeout=10, headers=headers)
+        print(f"Status Code: {r.status_code}")
+        print(f"Response Headers: {r.headers}")
+        print(f"Response Content: {r.text[:500]}")
         r.raise_for_status()
 
         soup = BeautifulSoup(r.text, "html.parser")
