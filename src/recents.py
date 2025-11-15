@@ -1,4 +1,4 @@
-from spotify_api import sp
+from src.spotify_api import sp
 import pprint
 import polars as pl
 import os

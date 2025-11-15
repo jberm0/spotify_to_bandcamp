@@ -1,9 +1,9 @@
 import streamlit as st
 import polars as pl
 
-from saved_albums import main as albums_main
-from saved_tracks import main as tracks_main
-from tops import top_artists, top_tracks, top_albums
+# from saved_albums import main as albums_main
+# from saved_tracks import main as tracks_main
+from src.tops import top_artists, top_tracks, top_albums
 from src.recents import process_raw_recents
 from src.bandcamp import compute_bandcamp_urls
 
