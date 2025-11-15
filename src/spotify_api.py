@@ -62,8 +62,8 @@ def authorise():
             try:
                 # Exchange the code for an access token
                 token_info = sp_oauth.get_access_token(
-                    code[0]
-                )  # code[0] should be the first element of the list
+                    code
+                )
                 access_token = token_info["access_token"]
                 st.session_state["sp"] = spotipy.Spotify(
                     auth=access_token
