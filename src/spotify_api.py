@@ -31,63 +31,8 @@ sp_oauth = SpotifyOAuth(
     scope=SCOPE,
 )
 
-# def authorise():
-#     # Check if the 'sp' key is in session state (this means the user has already authenticated)
-#     if "sp" not in st.session_state or st.session_state["sp"] is None:
-#         # Check if we have a code in the query params
-#         code = st.query_params.get("code")
-
-#         if code:
-#             try:
-#                 # Exchange the code for an access token
-#                 token_info = sp_oauth.get_access_token(
-#                     code
-#                 )
-#                 access_token = token_info["access_token"]
-#                 st.session_state["sp"] = spotipy.Spotify(
-#                     auth=access_token
-#                 )  # Initialize Spotify client
-#                 st.success("Successfully authorized!")
-
-#                 # Use the access token to get user info or top tracks, etc.
-#                 sp = st.session_state["sp"]
-#                 user_info = sp.current_user()
-#                 st.write(f"Hello, {user_info['display_name']}!")
-
-#             except Exception as e:
-#                 st.error(f"Error during authorization: {str(e)}")
-#                 st.markdown("[Click here to reauthorize with Spotify](%s)" % sp_oauth.get_authorize_url())
-#         else:
-#             # No code, so show the authorization URL
-#             auth_url = sp_oauth.get_authorize_url()
-#             st.markdown(f"[Click here to authorize with Spotify]({auth_url})")
-#     else:
-#         st.success("Already authorized with Spotify!")
-
-
-# def check_authorisation(custom_message=None):
-#     if st.session_state["sp"] is None:
-#         auth_url = st.session_state.get("auth_url")
-#         if custom_message:
-#             st.warning(custom_message)
-#         else:
-#             st.warning("Please sign in to Spotify to see this")
-#         if auth_url:
-#             st.markdown(f"[Click here to authenticate with your Spotify account]({auth_url})")
-#         return False
-#     return True
-
-
-def clear_session_on_new_visit():
-    """Forcefully clear session data on new visits to ensure re-authentication."""
-    if "sp" in st.session_state:
-        del st.session_state["sp"]
-        st.session_state["sp"] = None  # Make sure 'sp' key is reset
-
-
 def authorise():
-    clear_session_on_new_visit()
-    # Each user has their own session, check if "sp" is in the session state for that user
+    # Check if the 'sp' key is in session state (this means the user has already authenticated)
     if "sp" not in st.session_state or st.session_state["sp"] is None:
         # Check if we have a code in the query params
         code = st.query_params.get("code")
@@ -95,49 +40,40 @@ def authorise():
         if code:
             try:
                 # Exchange the code for an access token
-                token_info = sp_oauth.get_access_token(code)
+                token_info = sp_oauth.get_access_token(
+                    code
+                )
                 access_token = token_info["access_token"]
                 st.session_state["sp"] = spotipy.Spotify(
                     auth=access_token
                 )  # Initialize Spotify client
                 st.success("Successfully authorized!")
 
-                # Use the access token to get user info
+                # Use the access token to get user info or top tracks, etc.
                 sp = st.session_state["sp"]
                 user_info = sp.current_user()
                 st.write(f"Hello, {user_info['display_name']}!")
 
             except Exception as e:
                 st.error(f"Error during authorization: {str(e)}")
-                # Provide a reauthorization link in case of failure
-                st.markdown(
-                    "[Click here to reauthorize with Spotify](%s)"
-                    % sp_oauth.get_authorize_url()
-                )
-
+                st.markdown("[Click here to reauthorize with Spotify](%s)" % sp_oauth.get_authorize_url())
         else:
             # No code, so show the authorization URL
             auth_url = sp_oauth.get_authorize_url()
-            # Store the auth URL in session state for potential future access
-            st.session_state["auth_url"] = auth_url
-            st.markdown(
-                f"[Click here to authorize with your Spotify account]({auth_url})"
-            )
+            st.markdown(f"[Click here to authorize with Spotify]({auth_url})")
     else:
         st.success("Already authorized with Spotify!")
 
 
 def check_authorisation(custom_message=None):
-    # Check if the user is authorized (i.e., 'sp' key exists in session_state)
-    if st.session_state.get("sp") is None:
+    if st.session_state["sp"] is None:
         auth_url = st.session_state.get("auth_url")
         if custom_message:
             st.warning(custom_message)
         else:
-            st.warning("Please sign in to Spotify to see this content.")
+            st.warning("Please sign in to Spotify to see this")
         if auth_url:
-            st.markdown(
-                f"[Click here to authenticate with your Spotify account]({auth_url})"
-            )
+            st.markdown(f"[Click here to authenticate with your Spotify account]({auth_url})")
         return False
     return True
+
