@@ -156,88 +156,83 @@ sp_oauth = SpotifyOAuth(
 
 
 def get_oauth():
-    """Create a new OAuth manager (no shared cache!)."""
     return SpotifyOAuth(
         client_id=st.secrets["SPOTIPY_CLIENT_ID"],
         client_secret=st.secrets["SPOTIPY_CLIENT_SECRET"],
         redirect_uri=st.secrets["SPOTIPY_REDIRECT_URI"],
         scope=SCOPE,
-        cache_path=None,  # <- IMPORTANT so Spotify tokens are NOT stored on disk
-        open_browser=False,  # prevent Streamlit from trying to open browser
+        cache_path=None,  # VERY IMPORTANT (no shared cache)
+        open_browser=False,
     )
 
 
+# ------------------ AUTH LOGIC ------------------ #
+
+
+def authorise():
+    oauth = get_oauth()
+
+    # --- handle callback ---
+    params = st.query_params
+    code = params.get("code")
+
+    if isinstance(code, list):  # Streamlit sometimes returns a list
+        code = code[0]
+
+    if code:
+        st.write("Received callback from Spotify!")
+        try:
+            token_info = oauth.get_access_token(code, check_cache=False)
+
+            st.session_state["token_info"] = token_info
+            st.session_state["sp"] = spotipy.Spotify(auth=token_info["access_token"])
+
+            # Clear params from URL
+            st.query_params.clear()
+            st.rerun()
+
+        except Exception as e:
+            st.error(f"Spotify auth error: {e}")
+            st.markdown(f"[Retry login]({oauth.get_authorize_url()})")
+            return
+
+    # --- no callback? Show login link ---
+    if "token_info" not in st.session_state:
+        auth_url = oauth.get_authorize_url()
+        st.write("Click below to log in to Spotify:")
+        st.markdown(f"[Authenticate with Spotify]({auth_url})")
+        return
+
+    st.success("Authenticated!")
+
+
 def get_spotify_client():
-    """Return authenticated Spotify client or None."""
+    """Ensure token is fresh, return Spotify client or None."""
     if "token_info" not in st.session_state:
         return None
 
     oauth = get_oauth()
     token_info = st.session_state["token_info"]
 
-    # Refresh the token if expired
+    # Refresh token if expired
     if oauth.is_token_expired(token_info):
         token_info = oauth.refresh_access_token(token_info["refresh_token"])
         st.session_state["token_info"] = token_info
 
-    return spotipy.Spotify(auth=token_info["access_token"])
-
-
-# --- Authentication Flow ---
-
-
-def authorise():
-    """Start authentication or finish callback."""
-    oauth = get_oauth()
-    code = st.query_params.get("code")
-
-    # If Spotify redirected back with a code
-    if code:
-        try:
-            token_info = oauth.get_access_token(
-                code, check_cache=False  # ensure no shared cache
-            )
-            st.session_state["token_info"] = token_info
-
-            # Cleanup URL and re-run
-            st.query_params.clear()
-            st.rerun()
-
-        except Exception as e:
-            st.error(f"Error during Spotify authentication: {e}")
-            st.markdown(f"[Retry login]({oauth.get_authorize_url()})")
-            return
-
-    # If no token yet, show login link
-    if "token_info" not in st.session_state:
-        auth_url = oauth.get_authorize_url()
-        st.markdown(f"[Click here to log in with Spotify]({auth_url})")
-        return
-
-    # Already authenticated
-    st.success("Authenticated with Spotify!")
+    # Ensure `sp` is set for compatibility with old code
+    st.session_state["sp"] = spotipy.Spotify(auth=token_info["access_token"])
+    return st.session_state["sp"]
 
 
 def check_authorisation(custom_message=None):
-    """Require authentication before showing protected content."""
+    """Require user login. Returns sp or None."""
     sp = get_spotify_client()
     if sp is None:
         msg = custom_message or "Please sign in to Spotify to continue."
         st.warning(msg)
 
-        oauth = get_oauth()
-        auth_url = oauth.get_authorize_url()
+        auth_url = get_oauth().get_authorize_url()
         st.markdown(f"[Click here to authenticate with Spotify]({auth_url})")
 
         return None
-
     return sp
-
-
-# --- Example protected section ---
-# Call this at the top of any page requiring login:
-# sp = check_authorisation()
-# if not sp:
-#     st.stop()
-# user = sp.current_user()
-# st.write(f"Welcome {user['display_name']}!")
