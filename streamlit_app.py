@@ -43,7 +43,11 @@ about, top_lists, recents = st.tabs(["About", "Top Lists", "Recent Tracks"])
 
 with about:
     st.title("Spotify to Bandcamp")
-    st.markdown("**intro text**")
+    sp = check_authorisation()
+    if not sp:
+        st.stop()
+    user = sp.current_user()
+    st.write(f"Welcome {user['display_name']}!")
     if check_authorisation(
         "Please log in to Spotify to view your account information."
     ):
