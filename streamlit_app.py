@@ -2,10 +2,7 @@ import streamlit as st
 from src.tops import top_artists, top_tracks, top_albums
 from src.recents import process_raw_recents
 from src.bandcamp import compute_bandcamp_urls
-from src.spotify_api import (
-    check_authorisation,
-    force_spotify_auth
-)
+from src.spotify_api import check_authorisation, force_spotify_auth
 from src.filters import clear_all_filters, apply_filters, filters_setup
 from src.about import about_app
 
@@ -20,7 +17,9 @@ if "auth_attempted" not in st.session_state:
 
 filters_setup()
 
-login, about, top_lists, recents = st.tabs(["Login", "About", "Top Lists", "Recent Tracks"])
+login, about, top_lists, recents = st.tabs(
+    ["Login", "About", "Top Lists", "Recent Tracks"]
+)
 
 with about:
     st.title("Spotify to Bandcamp")

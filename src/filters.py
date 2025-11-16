@@ -8,6 +8,9 @@ def clear_all_filters():
     st.session_state.filters = {"artist": "", "album": "", "track": ""}
 
 def apply_filters(df: pl.DataFrame):
+    if df is None or df.is_empty():
+        st.warning("No data available to apply filters.")
+        return df
     f = st.session_state.filters
     if f["artist"]:
         df = df.filter(
