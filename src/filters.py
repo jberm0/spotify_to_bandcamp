@@ -26,3 +26,33 @@ def apply_filters(df: pl.DataFrame):
             pl.col("track_name").str.to_lowercase().str.contains(f["track"].lower())
         )
     return df
+
+def filters_setup():
+    if "filters" not in st.session_state:
+        st.session_state.filters = {
+            "artist": "",
+            "album": "",
+            "track": "",
+        }
+    if "filter_artist" not in st.session_state:
+        st.session_state["filter_artist"] = ""
+    if "filter_album" not in st.session_state:
+        st.session_state["filter_album"] = ""
+    if "filter_track" not in st.session_state:
+        st.session_state["filter_track"] = ""
+
+    with st.sidebar:
+        st.header("Filters")
+
+        artist_input = st.text_input("Artist contains", key="filter_artist").strip()
+        album_input = st.text_input("Album contains", key="filter_album").strip()
+        track_input = st.text_input("Track contains", key="filter_track").strip()
+
+        with st.expander("Current filters", False):
+            st.write("Current Filters Applied:", st.session_state.filters)
+
+        st.button("Clear Filters", on_click=clear_all_filters)
+
+    st.session_state.filters["artist"] = artist_input
+    st.session_state.filters["album"] = album_input
+    st.session_state.filters["track"] = track_input
