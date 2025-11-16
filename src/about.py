@@ -27,30 +27,30 @@ def about_app():
             email = st.text_input("Your Email")
             submitted = st.form_submit_button("Send Request")
 
-        if submitted:
-            if not name or not email:
-                st.warning("Please fill in both your name and email.")
-            else:
-                try:
-                    token = st.secrets["github"]["GITHUB_TOKEN"]
-                    repo = st.secrets["github"]["GITHUB_REPO"]
-                    url = f"https://api.github.com/repos/{repo}/issues"
+        # if submitted:
+        #     if not name or not email:
+        #         st.warning("Please fill in both your name and email.")
+        #     else:
+        #         try:
+        #             token = st.secrets["github"]["GITHUB_TOKEN"]
+        #             repo = st.secrets["github"]["GITHUB_REPO"]
+        #             url = f"https://api.github.com/repos/{repo}/issues"
 
-                    issue_data = {
-                        "title": f"Spotify App Access Request from {name}",
-                        "body": f"**Name:** {name}\n**Email:** {email}",
-                    }
+        #             issue_data = {
+        #                 "title": f"Spotify App Access Request from {name}",
+        #                 "body": f"**Name:** {name}\n**Email:** {email}",
+        #             }
 
-                    headers = {"Authorization": f"token {token}"}
+        #             headers = {"Authorization": f"token {token}"}
 
-                    response = requests.post(url, json=issue_data, headers=headers)
+        #             response = requests.post(url, json=issue_data, headers=headers)
 
-                    if response.status_code == 201:
-                        st.success(
-                            f"Thanks {name}! Your request has been submitted as a GitHub issue."
-                        )
-                    else:
-                        st.error(f"Failed to create GitHub issue: {response.text}")
+        #             if response.status_code == 201:
+        #                 st.success(
+        #                     f"Thanks {name}! Your request has been submitted as a GitHub issue."
+        #                 )
+        #             else:
+        #                 st.error(f"Failed to create GitHub issue: {response.text}")
 
-                except Exception as e:
-                    st.error(f"Error: {e}")
+        #         except Exception as e:
+        #             st.error(f"Error: {e}")
