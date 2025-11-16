@@ -2,12 +2,9 @@ import streamlit as st
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
-
-# Load environment variables (you can also use streamlit secrets if deployed)
 from dotenv import load_dotenv
 
 load_dotenv()
-
 
 def running_locally():
     try:

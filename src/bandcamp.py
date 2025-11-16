@@ -12,43 +12,22 @@ import urllib.parse
 
 import streamlit as st
 
+
 def find_bandcamp_url_optimized(artist="", album="", track=""):
+    # Handle lists from Polars rows
     if isinstance(artist, list):
         artist = artist[0]
-    query = f"{artist} {album} {track}"  # fallback
+    if isinstance(album, list):
+        album = album[0]
+    if isinstance(track, list):
+        track = track[0]
 
+    # Build search query
+    query = " ".join([str(artist), str(album), str(track)]).strip()
     encoded = urllib.parse.quote(query)
-    search_url = f"https://bandcamp.com/search?q={encoded}"
 
-    try:
-        headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/91.0.4472.124 Safari/537.36"
-            ),
-            "Accept-Language": "en-US,en;q=0.5",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Connection": "keep-alive",
-            "Upgrade-Insecure-Requests": "1",
-        }
-        r = requests.get(search_url, timeout=10, headers=headers)
-        st.write(f"Status Code: {r.status_code}")
-        st.write(f"Response Headers: {r.headers}")
-        st.write(f"Response Content: {r.text[:500]}")
-        r.raise_for_status()
-
-        soup = BeautifulSoup(r.text, "html.parser")
-
-        for item in soup.select("li.searchresult a[href]"):
-            href = item["href"]
-            return href
-
-    except Exception as e:
-        print(f"Error fetching URL for {query}: {e}")
-        return None
-
-    return None
+    # Bandcamp public search URL (100% cloud-safe)
+    return f"https://bandcamp.com/search?q={encoded}"
 
 
 def compute_bandcamp_urls(df: pl.DataFrame) -> pl.DataFrame:
@@ -69,8 +48,7 @@ def compute_bandcamp_urls(df: pl.DataFrame) -> pl.DataFrame:
 
     # Compute URLs
     urls = [
-        find_bandcamp_url_optimized(a, b, t)
-        for a, b, t in zip(artists, albums, tracks)
+        find_bandcamp_url_optimized(a, b, t) for a, b, t in zip(artists, albums, tracks)
     ]
 
     # Build DataFrame dynamically
