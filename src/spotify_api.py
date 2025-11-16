@@ -47,6 +47,8 @@ def force_spotify_auth():
     # 1. Check if we already have an active Spotify client instance in session state
     if st.session_state["sp"] is not None:
         st.success("Successfully authorized!")
+        user_info = st.session_state["sp"].current_user()
+        st.write(f"Hey, {user_info['display_name']}")
         return True  # User is authenticated, proceed with the app
 
     # 2. Check for a 'code' in the URL query params (Spotify redirected back here)
@@ -62,6 +64,8 @@ def force_spotify_auth():
 
             # Initialize the Spotify client with the access token
             st.session_state["sp"] = spotipy.Spotify(auth=token_info["access_token"])
+            user_info = st.session_state["sp"].current_user()
+            st.write(f"Hey, {user_info['display_name']}")
             st.success("Successfully authorized!")
 
             # Rerun the script to clear the 'code' from the URL and re-render the clean UI
@@ -76,7 +80,7 @@ def force_spotify_auth():
     # 3. If no token and no code, the user needs to log in
     else:
         auth_url = sp_oauth.get_authorize_url()
-        st.warning("Please authorize with Spotify to use this application.")
+        st.warning("Please authorise with Spotify to use this application to see content")
         st.markdown(f"[**Login to Spotify**]({auth_url})")
 
         # CRITICAL: Stop the script execution here

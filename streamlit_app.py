@@ -7,6 +7,7 @@ from src.spotify_api import (
     force_spotify_auth
 )
 from src.filters import clear_all_filters, apply_filters, filters_setup
+from src.about import about_app
 
 if "sp" not in st.session_state:
     st.session_state["sp"] = None
@@ -21,20 +22,12 @@ filters_setup()
 
 login, about, top_lists, recents = st.tabs(["Login", "About", "Top Lists", "Recent Tracks"])
 
-with login:
-    force_spotify_auth()
-
 with about:
     st.title("Spotify to Bandcamp")
-    st.markdown("**hello blah blah**")
-    if check_authorisation(
-        "Please log in to Spotify to view your account information."
-    ):
-        sp = st.session_state["sp"]
-        user_info = sp.current_user()
-        st.write(f"Hey, {user_info['display_name']}")
-    else:
-        force_spotify_auth()
+    about_app()
+
+with login:
+    force_spotify_auth()
 
 with top_lists:
     st.title("Top Tracks, Albums and Artists")
