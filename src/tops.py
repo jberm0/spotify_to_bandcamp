@@ -53,26 +53,20 @@ def process_df(df):
     )
 
 
-@st.cache_data()
 def top_tracks(term):
-    sp = st.session_state.get("sp")
     tracks = get_top_tracks(term)
     df = pl.DataFrame(tracks).select("album", "artists", "name")
     return process_df(df)
 
 
-@st.cache_data()
 def top_artists(term):
-    sp = st.session_state.get("sp")
     artists = get_top_artists(term)
     return (
         pl.DataFrame(artists)
         .select(pl.col("name").alias("artist_name"))
     )
 
-@st.cache_data()
 def top_albums(term):
-    sp = st.session_state.get("sp")
     top_tracks_df = top_tracks(term)
     return (
         top_tracks_df.group_by("album_name", "artist_name")

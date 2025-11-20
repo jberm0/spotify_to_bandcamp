@@ -33,6 +33,8 @@ with login:
 with top_lists:
     st.title("Top Tracks, Albums and Artists")
 
+    st.badge(st.session_state["sp"].current_user())
+
     if check_authorisation("Please log in to Spotify to view top lists."):
         category = st.pills(
             "Category", options=["tracks", "albums", "artists"], selection_mode="single"
@@ -79,6 +81,8 @@ with top_lists:
 
 with recents:
     st.title("Last 50 Tracks Played")
+
+    st.badge(st.session_state["sp"].current_user())
 
     if check_authorisation("Please log in to Spotify to view your recent tracks."):
         df = process_raw_recents()
