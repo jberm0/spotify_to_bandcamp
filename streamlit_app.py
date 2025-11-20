@@ -33,7 +33,7 @@ with login:
 with top_lists:
     st.title("Top Tracks, Albums and Artists")
 
-    st.badge(f"{st.session_state['sp"'].current_user()}")
+    st.badge(f"{st.session_state['sp'].current_user()}")
 
     if check_authorisation("Please log in to Spotify to view top lists."):
         category = st.pills(
