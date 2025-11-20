@@ -32,68 +32,56 @@ SCOPE = "playlist-read-private playlist-read-collaborative user-library-read use
 
 
 def force_spotify_auth():
-    """
-    Forces a user to authenticate with Spotify at the start of a new session.
-    Stops script execution until successful login and redirect.
-    """
 
+    # Create unique session ID
     if "session_id" not in st.session_state:
         st.session_state.session_id = str(uuid.uuid4())
 
+    # Create session-local cache file
     cache_path = f".cache-{st.session_state.session_id}"
 
-    sp_oauth = SpotifyOAuth(
-        client_id=SPOTIPY_CLIENT_ID,
-        client_secret=SPOTIPY_CLIENT_SECRET,
-        redirect_uri=SPOTIPY_REDIRECT_URI,
-        scope=SCOPE,
-        cache_path=cache_path
-    )
+    # Build OAuth object (per user, stored in session state!)
+    if "oauth" not in st.session_state:
+        st.session_state.oauth = SpotifyOAuth(
+            client_id=SPOTIPY_CLIENT_ID,
+            client_secret=SPOTIPY_CLIENT_SECRET,
+            redirect_uri=SPOTIPY_REDIRECT_URI,
+            scope=SCOPE,
+            cache_path=cache_path,
+        )
 
-    # 1. Check if we already have an active Spotify client instance in session state
-    if st.session_state["sp"] is not None:
+    oauth = st.session_state.oauth
+
+    # Already authenticated?
+    if "sp" in st.session_state and st.session_state["sp"]:
         st.success("Successfully authorized!")
         user_info = st.session_state["sp"].current_user()
         st.write(f"Hey, {user_info['display_name']}")
-        return True  # User is authenticated, proceed with the app
+        return True
 
-    # 2. Check for a 'code' in the URL query params (Spotify redirected back here)
+    # Look for the 'code' from Spotify's redirect
     code = st.query_params.get("code")
 
     if code:
         try:
-            # Exchange the code for an access token and refresh token
-            token_info = sp_oauth.get_access_token(code)
-
-            # Store token info in session state
+            token_info = oauth.get_access_token(code, as_dict=True)
             st.session_state["sp_token_info"] = token_info
-
-            # Initialize the Spotify client with the access token
             st.session_state["sp"] = spotipy.Spotify(auth=token_info["access_token"])
-            user_info = st.session_state["sp"].current_user()
-            st.write(f"Hey, {user_info['display_name']}")
-            st.success("Successfully authorized!")
 
-            # Rerun the script to clear the 'code' from the URL and re-render the clean UI
+            # IMPORTANT: Clear the code from the URL -> prevents cross-user login
+            st.query_params.clear()
             st.rerun()
-            return True  # This line won't be reached because rerun happens, but it's good practice
 
         except Exception as e:
-            st.error(f"Error during authorization: {str(e)}")
-            st.session_state["sp_token_info"] = None
+            st.error(f"Authorization error: {e}")
             st.session_state["sp"] = None
+            st.session_state["sp_token_info"] = None
 
-    # 3. If no token and no code, the user needs to log in
-    else:
-        auth_url = sp_oauth.get_authorize_url()
-        st.warning("Please authorise with Spotify to use this application to see content")
-        st.markdown(f"[**Login to Spotify**]({auth_url})")
-
-        # CRITICAL: Stop the script execution here
-        # Prevents the rest of your app from running until the user logs in and reruns
-        st.stop()
-
-    return False  # Should be unreachable due to st.stop()
+    # No token yet → show login URL
+    auth_url = oauth.get_authorize_url()
+    st.warning("Please authorise with Spotify to continue.")
+    st.markdown(f"[**Login to Spotify**]({auth_url})")
+    st.stop()
 
 
 def check_authorisation(custom_message=None):
