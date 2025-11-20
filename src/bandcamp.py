@@ -1,15 +1,5 @@
 import polars as pl
-import requests
-from bs4 import BeautifulSoup
 import urllib.parse
-from concurrent.futures import ThreadPoolExecutor
-import time
-
-
-import requests
-from bs4 import BeautifulSoup
-import urllib.parse
-
 import streamlit as st
 
 
@@ -66,3 +56,15 @@ def compute_bandcamp_urls(df: pl.DataFrame) -> pl.DataFrame:
         join_cols.append("track_name")
 
     return df.join(pl.DataFrame(data), on=join_cols, how="left")
+
+def return_bandcamp_dfs(df):
+    df_with_urls = compute_bandcamp_urls(df)
+    st.success("Bandcamp URLs generated!")
+    st.dataframe(
+        df_with_urls,
+        column_config={
+            "bandcamp_url": st.column_config.LinkColumn(
+                help="The bandcamp link may not always be accurate"
+            )
+        },
+    )

@@ -1,9 +1,9 @@
 import streamlit as st
 from src.tops import top_artists, top_tracks, top_albums
 from src.recents import process_raw_recents
-from src.bandcamp import compute_bandcamp_urls
+from src.bandcamp import return_bandcamp_dfs
 from src.spotify_api import check_authorisation, force_spotify_auth
-from src.filters import clear_all_filters, apply_filters, filters_setup
+from src.filters import apply_filters, filters_setup
 from src.about import about_app
 
 st.set_page_config(initial_sidebar_state="collapsed")
@@ -72,16 +72,7 @@ with top_lists:
             help=f"_Click here to search bandcamp for the {category if category is not None else 'category'} listed_",
         ):
             if filtered_df is not None and not filtered_df.is_empty():
-                df_with_urls = compute_bandcamp_urls(filtered_df)
-                st.success("Bandcamp URLs fetched!")
-                st.dataframe(
-                    df_with_urls,
-                    column_config={
-                        "bandcamp_url": st.column_config.LinkColumn(
-                            help="The bandcamp link may not always be accurate"
-                        )
-                    },
-                )
+                return_bandcamp_dfs(filtered_df)
             else:
                 st.warning("No data to search.")
         else:
@@ -107,16 +98,7 @@ with recents:
             help="_Click here to search bandcamp for the tracks listed_",
         ):
             if filtered_df is not None and not filtered_df.is_empty():
-                df_with_urls = compute_bandcamp_urls(filtered_df)
-                st.success("Bandcamp URLs fetched!")
-                st.dataframe(
-                    df_with_urls,
-                    column_config={
-                        "bandcamp_url": st.column_config.LinkColumn(
-                            help="The bandcamp link may not always be accurate"
-                        )
-                    },
-                )
+                return_bandcamp_dfs(filtered_df)
             else:
                 st.warning("No data to search.")
         else:
