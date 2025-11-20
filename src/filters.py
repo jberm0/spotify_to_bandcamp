@@ -9,7 +9,7 @@ def clear_all_filters():
 
 def apply_filters(df: pl.DataFrame):
     if df is None or df.is_empty():
-        st.warning("No data available to apply filters.")
+        st.warning("No data yet - try selecting options above")
         return df
     f = st.session_state.filters
     if f["artist"]:

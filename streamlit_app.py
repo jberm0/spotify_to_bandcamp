@@ -6,6 +6,8 @@ from src.spotify_api import check_authorisation, force_spotify_auth
 from src.filters import clear_all_filters, apply_filters, filters_setup
 from src.about import about_app
 
+st.set_page_config(initial_sidebar_state="collapsed")
+
 if "sp" not in st.session_state:
     st.session_state["sp"] = None
 if "code" not in st.session_state:
@@ -19,8 +21,8 @@ if "auth_url" not in st.session_state:
 
 filters_setup()
 
-login, about, top_lists, recents = st.tabs(
-    ["Login", "About", "Top Lists", "Recent Tracks"]
+about, login, top_lists, recents = st.tabs(
+    ["About", "Login", "Top Lists", "Recent Tracks"]
 )
 
 with about:
@@ -33,17 +35,21 @@ with login:
 with top_lists:
     st.title("Top Tracks, Albums and Artists")
 
-    st.badge(f"{st.session_state['sp'].current_user()}")
+    user_info = st.session_state["sp"].current_user()
+    st.write(f"Hey, {user_info['display_name']} - please select a category and time frame and then hit search")
 
-    if check_authorisation("Please log in to Spotify to view top lists."):
+    if check_authorisation("Please log in to Spotify to view top lists"):
         category = st.pills(
             "Category", options=["tracks", "albums", "artists"], selection_mode="single"
         )
         term = st.pills(
-            "Term",
+            label="Term",
             options=["short_term", "medium_term", "long_term"],
             selection_mode="single",
+            help="Short term is roughly 4 weeks, medium term roughly 6 months and long term roughly 1 year"
         )
+        if not term:
+            st.warning("If no time frame is selected, the results will be medium term")
 
         match category:
             case "artists":
@@ -60,7 +66,11 @@ with top_lists:
 
         filtered_df = apply_filters(df)
 
-        if st.button("Search Bandcamp", key="search_bandcamp_tops"):
+        if st.button(
+            "🚨 Search Bandcamp 🚨",
+            key="search_bandcamp_tops",
+            help=f"_Click here to search bandcamp for the {category if category is not None else 'category'} listed_",
+        ):
             if filtered_df is not None and not filtered_df.is_empty():
                 df_with_urls = compute_bandcamp_urls(filtered_df)
                 st.success("Bandcamp URLs fetched!")
@@ -68,7 +78,7 @@ with top_lists:
                     df_with_urls,
                     column_config={
                         "bandcamp_url": st.column_config.LinkColumn(
-                            help="Please note the bandcamp link may not always be accurate"
+                            help="The bandcamp link may not always be accurate"
                         )
                     },
                 )
@@ -82,13 +92,20 @@ with top_lists:
 with recents:
     st.title("Last 50 Tracks Played")
 
-    st.badge(f"{st.session_state['sp'].current_user()}")
+    user_info = st.session_state["sp"].current_user()
+    st.badge(
+        f"Hey, {user_info['display_name']} - these are your last 50 played tracks"
+    )
 
     if check_authorisation("Please log in to Spotify to view your recent tracks."):
         df = process_raw_recents()
         filtered_df = apply_filters(df)
 
-        if st.button("Search Bandcamp", key="search_bandcamp_recents"):
+        if st.button(
+            "🚨 Search Bandcamp 🚨",
+            key="search_bandcamp_recents",
+            help="_Click here to search bandcamp for the tracks listed_",
+        ):
             if filtered_df is not None and not filtered_df.is_empty():
                 df_with_urls = compute_bandcamp_urls(filtered_df)
                 st.success("Bandcamp URLs fetched!")
@@ -96,7 +113,7 @@ with recents:
                     df_with_urls,
                     column_config={
                         "bandcamp_url": st.column_config.LinkColumn(
-                            help="Please note the bandcamp link may not always be accurate"
+                            help="The bandcamp link may not always be accurate"
                         )
                     },
                 )
