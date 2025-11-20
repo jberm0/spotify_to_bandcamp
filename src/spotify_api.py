@@ -79,19 +79,28 @@ def force_spotify_auth():
 
     # No token yet → show login URL
     auth_url = oauth.get_authorize_url()
+    st.session_state["auth_url"] = auth_url
     st.warning("Please authorise with Spotify to continue.")
     st.markdown(f"[**Login to Spotify**]({auth_url})")
     st.stop()
 
 
 def check_authorisation(custom_message=None):
-    if st.session_state["sp"] is None:
+    sp_client = st.session_state.get("sp")
+
+    if sp_client is None:
         auth_url = st.session_state.get("auth_url")
+
         if custom_message:
             st.warning(custom_message)
         else:
             st.warning("Please sign in to Spotify to see this")
+
         if auth_url:
-            st.markdown(f"[Click here to authenticate with your Spotify account]({auth_url})")
+            st.markdown(
+                f"[Click here to authenticate with your Spotify account]({auth_url})"
+            )
+
         return False
+
     return True

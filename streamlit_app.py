@@ -14,6 +14,8 @@ if "spotify_token" not in st.session_state:
     st.session_state["spotify_token"] = None
 if "auth_attempted" not in st.session_state:
     st.session_state["auth_attempted"] = None
+if "auth_url" not in st.session_state:
+    st.session_state["auth_url"] = None
 
 filters_setup()
 
