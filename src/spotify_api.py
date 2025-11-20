@@ -37,8 +37,10 @@ def force_spotify_auth():
     if "session_id" not in st.session_state:
         st.session_state.session_id = str(uuid.uuid4())
 
-    # Create session-local cache file
-    cache_path = f".cache-{st.session_state.session_id}"
+    cache_dir = "spotify_cache"
+
+    if not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
 
     # Build OAuth object (per user, stored in session state!)
     if "oauth" not in st.session_state:
@@ -47,7 +49,7 @@ def force_spotify_auth():
             client_secret=SPOTIPY_CLIENT_SECRET,
             redirect_uri=SPOTIPY_REDIRECT_URI,
             scope=SCOPE,
-            cache_path=cache_path,
+            cache_path=f".{cache_dir}/cache-{st.session_state.session_id}",
         )
 
     oauth = st.session_state.oauth
