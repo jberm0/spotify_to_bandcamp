@@ -1,8 +1,9 @@
 import streamlit as st
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth, CacheFileHandler
 import os
 from dotenv import load_dotenv
+import uuid
 
 load_dotenv()
 
@@ -36,12 +37,17 @@ def force_spotify_auth():
     Stops script execution until successful login and redirect.
     """
 
+    if "session_id" not in st.session_state:
+        st.session_state.session_id = str(uuid.uuid4())
+
+    cache_path = f".cache-{st.session_state.session_id}"
+
     sp_oauth = SpotifyOAuth(
         client_id=SPOTIPY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,
         redirect_uri=SPOTIPY_REDIRECT_URI,
         scope=SCOPE,
-        cache_path=None
+        cache_path=cache_path
     )
 
     # 1. Check if we already have an active Spotify client instance in session state
