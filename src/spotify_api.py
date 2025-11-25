@@ -54,14 +54,12 @@ def force_spotify_auth():
 
     oauth = st.session_state.oauth
 
-    # Already authenticated?
     if "sp" in st.session_state and st.session_state["sp"]:
         st.success("Successfully authorized!")
         user_info = st.session_state["sp"].current_user()
         st.write(f"Hey, {user_info['display_name']}")
         return True
 
-    # Look for the 'code' from Spotify's redirect
     code = st.query_params.get("code")
 
     if code:
@@ -70,7 +68,6 @@ def force_spotify_auth():
             st.session_state["sp_token_info"] = token_info
             st.session_state["sp"] = spotipy.Spotify(auth=token_info["access_token"])
 
-            # IMPORTANT: Clear the code from the URL -> prevents cross-user login
             st.query_params.clear()
             st.rerun()
 
@@ -79,10 +76,9 @@ def force_spotify_auth():
             st.session_state["sp"] = None
             st.session_state["sp_token_info"] = None
 
-    # No token yet → show login URL
     auth_url = oauth.get_authorize_url()
     st.session_state["auth_url"] = auth_url
-    st.warning("Please authorise with Spotify to continue.")
+    st.warning("Please authorise with Spotify to continue. If you tried to log in but were returned to this page without success, you probably don't have access")
     st.markdown(f"[**Login to Spotify**]({auth_url})")
     st.stop()
 
