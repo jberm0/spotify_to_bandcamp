@@ -67,7 +67,7 @@ with top_lists:
         filtered_df = apply_filters(df)
 
         if st.button(
-            "🚨 Search Bandcamp 🚨",
+            "🚨 Generate Bandcamp links 🚨",
             key="search_bandcamp_tops",
             help=f"_Click here to search bandcamp for the {category if category is not None else 'category'} listed_",
         ):
@@ -93,7 +93,7 @@ with recents:
         filtered_df = apply_filters(df)
 
         if st.button(
-            "🚨 Search Bandcamp 🚨",
+            "🚨 Generate Bandcamp links 🚨",
             key="search_bandcamp_recents",
             help="_Click here to search bandcamp for the tracks listed_",
         ):
